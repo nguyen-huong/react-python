@@ -1,21 +1,33 @@
+import { useEffect, useState } from 'react';
+import script from './python/main.py';
 import logo from './logo.svg';
 import './App.css';
 
-const pythonExec =()=>{
-  const python_code =`
-    print("Hello, world")
-  `;
+const App = () => {
+  const [output, setOutput] = useState("(loading...)");
 
-  const pyodide = window.pyodide
-  pyodide.runPython (python_code)
-}
+  const runScript = code => {
+    window.pyodide.loadPackage([]).then(() => {
+      const output = window.pyodide.runPython(code);
+      setOutput(output);
+    })
+  }
 
-function App() {
+  useEffect(() => {
+    window.languagePluginLoader.then(() => {
+      fetch(script)
+        .then(src => src.text())
+        .then(runScript)
+    })
+  })
+
   return (
     <div className="App">
       <header className="App-header">
-        <h1>Python from React</h1>
-        <button onClick={pythonExec}>Console</button>
+        <img src={logo} className="App-logo" alt="logo" />
+        <p>
+          5 + 7 = {output}
+        </p>
       </header>
     </div>
   );
